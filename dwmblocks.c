@@ -64,7 +64,7 @@ static void getcmd(const Block *block, char output[static CMDLENGTH + 1]) {
         return;
     }
     size_t i = strlen(block->icon);
-    fgets(output + i, (int)(CMDLENGTH - i - strlen(delim)), cmdf);
+    fgets(output + i, (int)(CMDLENGTH + 1 - i - strlen(delim)), cmdf);
     i = strlen(output);
     if (i == 0) {
         // return if block and command output are both empty
