@@ -20,14 +20,14 @@ typedef struct {
     char *icon;
     char *command;
     unsigned int interval;
-    unsigned int signal;
+    int signal;
 } Block;
 #ifndef __OpenBSD__
 static void dummysighandler(int num);
 #endif
 static void sighandler(int num);
 static void getcmds(int time);
-static void getsigcmds(unsigned int signal);
+static void getsigcmds(int signal);
 static void setupsignals(void);
 static void sighandler(int signum);
 static int getstatus(char *str, char *last);
@@ -63,8 +63,8 @@ static void getcmd(const Block *block, char *output) {
     if (!cmdf) {
         return;
     }
-    int i = strlen(block->icon);
-    fgets(output + i, CMDLENGTH - i - strlen(delim) - 1, cmdf);
+    size_t i = strlen(block->icon);
+    fgets(output + i, (int)(CMDLENGTH - i - strlen(delim) - 1), cmdf);
     i = strlen(output);
     if (i == 0) {
         // return if block and command output are both empty
@@ -81,14 +81,14 @@ static void getcmds(int time) {
     const Block *current;
     for (unsigned int i = 0; i < LENGTH(blocks); i++) {
         current = blocks + i;
-        if ((current->interval != 0 && time % current->interval == 0) ||
-            time == -1) {
+        if (time < 0 || (current->interval != 0 &&
+                         (unsigned int)time % current->interval == 0)) {
             getcmd(current, statusbar[i]);
         }
     }
 }
 
-static void getsigcmds(unsigned int signal) {
+static void getsigcmds(int signal) {
     const Block *current;
     for (unsigned int i = 0; i < LENGTH(blocks); i++) {
         current = blocks + i;
