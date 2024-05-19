@@ -30,16 +30,16 @@ void dummysighandler(int num);
 void sighandler(int num);
 void getcmds(int time);
 void getsigcmds(unsigned int signal);
-void setupsignals();
+void setupsignals(void);
 void sighandler(int signum);
 int getstatus(char *str, char *last);
-void statusloop();
-void termhandler();
-void pstdout();
+void statusloop(void);
+void termhandler(int signum);
+void pstdout(void);
 #ifndef NO_X
-void setroot();
-static void (*writestatus)() = setroot;
-static int setupX();
+void setroot(void);
+static void (*writestatus)(void) = setroot;
+static int setupX(void);
 static Display *dpy;
 static int screen;
 static Window root;
@@ -99,7 +99,7 @@ void getsigcmds(unsigned int signal) {
     }
 }
 
-void setupsignals() {
+void setupsignals(void) {
 #ifndef __OpenBSD__
     /* initialize all real time signals with dummy handler */
     for (int i = SIGRTMIN; i <= SIGRTMAX; i++) {
@@ -125,7 +125,7 @@ int getstatus(char *str, char *last) {
 }
 
 #ifndef NO_X
-void setroot() {
+void setroot(void) {
     if (!getstatus(
             statusstr[0], statusstr[1]
         )) { // Only set root if text has changed.
@@ -135,7 +135,7 @@ void setroot() {
     XFlush(dpy);
 }
 
-int setupX() {
+int setupX(void) {
     dpy = XOpenDisplay(NULL);
     if (!dpy) {
         fprintf(stderr, "dwmblocks: Failed to open display\n");
@@ -147,7 +147,7 @@ int setupX() {
 }
 #endif
 
-void pstdout() {
+void pstdout(void) {
     if (!getstatus(
             statusstr[0], statusstr[1]
         )) { // Only write out if text has changed.
@@ -157,7 +157,7 @@ void pstdout() {
     fflush(stdout);
 }
 
-void statusloop() {
+void statusloop(void) {
     setupsignals();
     int i = 0;
     getcmds(-1);
@@ -174,7 +174,7 @@ void statusloop() {
 #ifndef __OpenBSD__
 /* this signal handler should do nothing */
 void dummysighandler(int signum) {
-    return;
+    (void)signum;
 }
 #endif
 
@@ -183,7 +183,8 @@ void sighandler(int signum) {
     writestatus();
 }
 
-void termhandler() {
+void termhandler(int signum) {
+    (void)signum;
     statusContinue = 0;
 }
 
