@@ -73,7 +73,7 @@ static void getcmd(const Block *block, char *output) {
     }
     // only chop off newline if one is present at the end
     i = output[i - 1] == '\n' ? i - 1 : i;
-    strncpy(output + i, delim, strlen(delim));
+    strcpy(output + i, delim);
     pclose(cmdf);
 }
 
