@@ -1,5 +1,5 @@
 PREFIX  := ~/.local
-CC      := cc
+CC      ?= cc
 CFLAGS  := -pedantic -Wall -Wno-deprecated-declarations -Os
 LDFLAGS := -lX11
 
