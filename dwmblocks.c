@@ -193,9 +193,7 @@ static void termhandler(int signum) {
 
 int main(int argc, char **argv) {
     for (int i = 0; i < argc; i++) { // Handle command line arguments
-        if (!strcmp("-d", argv[i])) {
-            strncpy(delim, argv[++i], strlen(delim));
-        } else if (!strcmp("-p", argv[i])) {
+        if (!strcmp("-p", argv[i])) {
             writestatus = pstdout;
         }
     }
