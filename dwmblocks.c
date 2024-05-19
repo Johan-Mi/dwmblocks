@@ -14,9 +14,7 @@
 #define SIGMINUS SIGRTMIN
 #endif
 #define LENGTH(X) (sizeof(X) / sizeof(X[0]))
-#define CMDLENGTH 50
 #define MIN(a, b) ((a < b) ? a : b)
-#define STATUSLENGTH (LENGTH(blocks) * CMDLENGTH + 1)
 
 typedef struct {
     char *icon;
@@ -48,6 +46,11 @@ static void (*writestatus)() = pstdout;
 #endif
 
 #include "blocks.h"
+
+enum {
+    CMDLENGTH = 50,
+    STATUSLENGTH = LENGTH(blocks) * CMDLENGTH + 1,
+};
 
 static char statusbar[LENGTH(blocks)][CMDLENGTH] = {0};
 static char statusstr[2][STATUSLENGTH];
