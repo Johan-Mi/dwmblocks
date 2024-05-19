@@ -23,19 +23,19 @@ typedef struct {
     unsigned int signal;
 } Block;
 #ifndef __OpenBSD__
-void dummysighandler(int num);
+static void dummysighandler(int num);
 #endif
-void sighandler(int num);
-void getcmds(int time);
-void getsigcmds(unsigned int signal);
-void setupsignals(void);
-void sighandler(int signum);
-int getstatus(char *str, char *last);
-void statusloop(void);
-void termhandler(int signum);
-void pstdout(void);
+static void sighandler(int num);
+static void getcmds(int time);
+static void getsigcmds(unsigned int signal);
+static void setupsignals(void);
+static void sighandler(int signum);
+static int getstatus(char *str, char *last);
+static void statusloop(void);
+static void termhandler(int signum);
+static void pstdout(void);
 #ifndef NO_X
-void setroot(void);
+static void setroot(void);
 static void (*writestatus)(void) = setroot;
 static int setupX(void);
 static Display *dpy;
@@ -57,7 +57,7 @@ static char statusstr[2][STATUSLENGTH];
 static int statusContinue = 1;
 
 // opens process *cmd and stores output in *output
-void getcmd(const Block *block, char *output) {
+static void getcmd(const Block *block, char *output) {
     strcpy(output, block->icon);
     FILE *cmdf = popen(block->command, "r");
     if (!cmdf) {
@@ -81,7 +81,7 @@ void getcmd(const Block *block, char *output) {
     pclose(cmdf);
 }
 
-void getcmds(int time) {
+static void getcmds(int time) {
     const Block *current;
     for (unsigned int i = 0; i < LENGTH(blocks); i++) {
         current = blocks + i;
@@ -92,7 +92,7 @@ void getcmds(int time) {
     }
 }
 
-void getsigcmds(unsigned int signal) {
+static void getsigcmds(unsigned int signal) {
     const Block *current;
     for (unsigned int i = 0; i < LENGTH(blocks); i++) {
         current = blocks + i;
@@ -102,7 +102,7 @@ void getsigcmds(unsigned int signal) {
     }
 }
 
-void setupsignals(void) {
+static void setupsignals(void) {
 #ifndef __OpenBSD__
     /* initialize all real time signals with dummy handler */
     for (int i = SIGRTMIN; i <= SIGRTMAX; i++) {
@@ -117,7 +117,7 @@ void setupsignals(void) {
     }
 }
 
-int getstatus(char *str, char *last) {
+static int getstatus(char *str, char *last) {
     strcpy(last, str);
     str[0] = '\0';
     for (unsigned int i = 0; i < LENGTH(blocks); i++) {
@@ -128,7 +128,7 @@ int getstatus(char *str, char *last) {
 }
 
 #ifndef NO_X
-void setroot(void) {
+static void setroot(void) {
     if (!getstatus(
             statusstr[0], statusstr[1]
         )) { // Only set root if text has changed.
@@ -138,7 +138,7 @@ void setroot(void) {
     XFlush(dpy);
 }
 
-int setupX(void) {
+static int setupX(void) {
     dpy = XOpenDisplay(NULL);
     if (!dpy) {
         fprintf(stderr, "dwmblocks: Failed to open display\n");
@@ -150,7 +150,7 @@ int setupX(void) {
 }
 #endif
 
-void pstdout(void) {
+static void pstdout(void) {
     if (!getstatus(
             statusstr[0], statusstr[1]
         )) { // Only write out if text has changed.
@@ -160,7 +160,7 @@ void pstdout(void) {
     fflush(stdout);
 }
 
-void statusloop(void) {
+static void statusloop(void) {
     setupsignals();
     int i = 0;
     getcmds(-1);
@@ -176,17 +176,17 @@ void statusloop(void) {
 
 #ifndef __OpenBSD__
 /* this signal handler should do nothing */
-void dummysighandler(int signum) {
+static void dummysighandler(int signum) {
     (void)signum;
 }
 #endif
 
-void sighandler(int signum) {
+static void sighandler(int signum) {
     getsigcmds(signum - SIGPLUS);
     writestatus();
 }
 
-void termhandler(int signum) {
+static void termhandler(int signum) {
     (void)signum;
     statusContinue = 0;
 }
