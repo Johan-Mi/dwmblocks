@@ -58,7 +58,7 @@ static int statusContinue = 1;
 
 // opens process *cmd and stores output in *output
 static void getcmd(const Block *block, char output[static CMDLENGTH + 1]) {
-    strcpy(output, block->icon);
+    strlcpy(output, block->icon, CMDLENGTH + 1);
     FILE *cmdf = popen(block->command, "r");
     if (!cmdf) {
         return;
@@ -119,7 +119,7 @@ static void setupsignals(void) {
 static int getstatus(
     char str[static STATUSLENGTH + 1], char last[static STATUSLENGTH + 1]
 ) {
-    strcpy(last, str);
+    strlcpy(last, str, STATUSLENGTH + 1);
 
     char *p = str;
     size_t size = STATUSLENGTH + 1;
