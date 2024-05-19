@@ -49,22 +49,22 @@ static void (*writestatus)() = pstdout;
 
 enum {
     CMDLENGTH = 50,
-    STATUSLENGTH = LENGTH(blocks) * CMDLENGTH + 1,
+    STATUSLENGTH = LENGTH(blocks) * CMDLENGTH,
 };
 
-static char statusbar[LENGTH(blocks)][CMDLENGTH] = {0};
-static char statusstr[2][STATUSLENGTH];
+static char statusbar[LENGTH(blocks)][CMDLENGTH + 1] = {0};
+static char statusstr[2][STATUSLENGTH + 1];
 static int statusContinue = 1;
 
 // opens process *cmd and stores output in *output
-static void getcmd(const Block *block, char *output) {
+static void getcmd(const Block *block, char output[static CMDLENGTH + 1]) {
     strcpy(output, block->icon);
     FILE *cmdf = popen(block->command, "r");
     if (!cmdf) {
         return;
     }
     size_t i = strlen(block->icon);
-    fgets(output + i, (int)(CMDLENGTH - i - strlen(delim) - 1), cmdf);
+    fgets(output + i, (int)(CMDLENGTH - i - strlen(delim)), cmdf);
     i = strlen(output);
     if (i == 0) {
         // return if block and command output are both empty
@@ -113,7 +113,9 @@ static void setupsignals(void) {
     }
 }
 
-static int getstatus(char *str, char *last) {
+static int getstatus(
+    char str[static STATUSLENGTH + 1], char last[static STATUSLENGTH + 1]
+) {
     strcpy(last, str);
     str[0] = '\0';
     for (unsigned int i = 0; i < LENGTH(blocks); i++) {
