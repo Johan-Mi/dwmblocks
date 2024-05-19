@@ -1,6 +1,6 @@
 PREFIX  := ~/.local
 CC      ?= cc
-CFLAGS  := -Wall -Wextra -Wpedantic -Os
+CFLAGS  := -Wall -Wextra -Wpedantic -Wconversion -Os
 LDFLAGS := -lX11
 
 # FreeBSD (uncomment)
