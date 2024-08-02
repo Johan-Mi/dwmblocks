@@ -2,7 +2,6 @@ const std = @import("std");
 const c = @cImport({
     @cInclude("signal.h");
     @cInclude("stdio.h");
-    @cInclude("string.h");
     @cInclude("X11/Xlib.h");
 });
 
