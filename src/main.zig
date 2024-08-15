@@ -6,7 +6,7 @@ const c = @cImport({
 });
 
 const blocks = [_]Block{
-    .{ .icon = "", .command = "free -h | awk '/^Mem/ { print $3\"/\"$2 }' | sed s/i//g", .interval = 30, .signal = 0 },
+    .{ .icon = "", .command = "free -h | awk '/^Mem/ { gsub(\"i\", \"\"); print $3\"/\"$2 }'", .interval = 30, .signal = 0 },
     .{ .icon = "", .command = "~/.local/bin/battery", .interval = 15, .signal = 0 },
     .{ .icon = "", .command = "date '+%FT%H:%M v %V'", .interval = 5, .signal = 0 },
 };
