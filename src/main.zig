@@ -126,7 +126,7 @@ fn getcmd(block: *const Block, output: *Part) !void {
 }
 
 pub fn main() !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    var gpa = std.heap.GeneralPurposeAllocator(.{}).init;
     defer std.debug.assert(gpa.deinit() == .ok);
     const allocator = gpa.allocator();
 
