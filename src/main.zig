@@ -103,7 +103,7 @@ fn pstdout() !void {
 fn setroot() !void {
     if (!getstatus(&status[0], &status[1])) return;
 
-    _ = c.XStoreName(dpy, root, @ptrCast(&status[0]));
+    _ = c.XStoreName(dpy, root, @ptrCast(&status[0].buffer));
     _ = c.XFlush(dpy);
 }
 
