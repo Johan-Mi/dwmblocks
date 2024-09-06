@@ -2,6 +2,7 @@ const std = @import("std");
 const c = @cImport({
     @cInclude("signal.h");
     @cInclude("stdio.h");
+    @cInclude("X11/Xatom.h");
     @cInclude("X11/Xlib.h");
 });
 
@@ -32,7 +33,7 @@ const Part = std.BoundedArray(u8, max_output_len);
 var parts = [_]Part{.{}} ** blocks.len;
 
 const max_status_len = (max_output_len + delim.len) * blocks.len - delim.len;
-const Status = std.BoundedArray(u8, max_status_len + 1);
+const Status = std.BoundedArray(u8, max_status_len);
 var status = [_]Status{.{}} ** 2;
 
 fn dummysighandler(signum: c_int) callconv(.C) void {
@@ -75,7 +76,6 @@ fn getstatus(str: *Status, last: *Status) bool {
         if (i != 0) str.appendSliceAssumeCapacity(delim);
         str.appendSliceAssumeCapacity(part.slice());
     }
-    str.appendAssumeCapacity('\x00');
     return !std.mem.eql(u8, str.slice(), last.slice());
 }
 
@@ -103,7 +103,16 @@ fn pstdout() !void {
 fn setroot() !void {
     if (!getstatus(&status[0], &status[1])) return;
 
-    _ = c.XStoreName(dpy, root, @ptrCast(&status[0].buffer));
+    _ = c.XChangeProperty(
+        dpy,
+        root,
+        c.XA_WM_NAME,
+        c.XA_STRING,
+        8,
+        c.PropModeReplace,
+        &status[0].buffer,
+        @intCast(status[0].len),
+    );
     _ = c.XFlush(dpy);
 }
 
