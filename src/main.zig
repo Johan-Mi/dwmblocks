@@ -2,8 +2,7 @@ const std = @import("std");
 const c = @cImport({
     @cInclude("signal.h");
     @cInclude("stdio.h");
-    @cInclude("X11/Xatom.h");
-    @cInclude("X11/Xlib.h");
+    @cInclude("xcb/xcb.h");
 });
 
 const blocks = [_]Block{
@@ -23,9 +22,8 @@ const Block = struct {
 
 var writestatus: *const fn () anyerror!void = &setroot;
 
-var dpy: ?*c.Display = null;
-var screen: c_int = 0;
-var root: c.Window = 0;
+var conn: *c.xcb_connection_t = undefined;
+var root: c.xcb_window_t = undefined;
 var status_continue = true;
 
 const max_output_len = 50;
@@ -103,23 +101,26 @@ fn pstdout() !void {
 fn setroot() !void {
     if (!getstatus(&status[0], &status[1])) return;
 
-    _ = c.XChangeProperty(
-        dpy,
+    _ = c.xcb_change_property(
+        conn,
+        c.XCB_PROP_MODE_REPLACE,
         root,
-        c.XA_WM_NAME,
-        c.XA_STRING,
+        c.XCB_ATOM_WM_NAME,
+        c.XCB_ATOM_STRING,
         8,
-        c.PropModeReplace,
-        &status[0].buffer,
         @intCast(status[0].len),
+        &status[0].buffer,
     );
-    _ = c.XFlush(dpy);
+    _ = c.xcb_flush(conn);
 }
 
 fn setupX() !void {
-    dpy = c.XOpenDisplay(null) orelse return error.FailedToOpenDisplay;
-    screen = c.DefaultScreen(dpy);
-    root = c.RootWindow(dpy, screen);
+    var screen_number: c_int = undefined;
+    conn = c.xcb_connect(null, &screen_number) orelse return error.FailedToConnectToX11Server;
+
+    var iter = c.xcb_setup_roots_iterator(c.xcb_get_setup(conn));
+    for (0..@intCast(screen_number)) |_| c.xcb_screen_next(&iter);
+    root = iter.data.*.root;
 }
 
 fn getcmd(block: *const Block, output: *Part) !void {
@@ -157,5 +158,5 @@ pub fn main() !void {
 
     try statusloop();
 
-    if (x) _ = c.XCloseDisplay(dpy);
+    if (x) c.xcb_disconnect(conn);
 }
